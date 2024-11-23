@@ -60,3 +60,4 @@ C:\Users\iuryp\OneDrive\Desktop\Pessoal\Estudos\agendamento\scheduleproject_back
 C:\Users\iuryp\OneDrive\Desktop\Pessoal\Estudos\agendamento\scheduleproject_back\scheduler\obj\Debug\net7.0\scheduler.pdb
 C:\Users\iuryp\OneDrive\Desktop\Pessoal\Estudos\agendamento\scheduleproject_back\scheduler\obj\Debug\net7.0\scheduler.genruntimeconfig.cache
 C:\Users\iuryp\OneDrive\Desktop\Pessoal\Estudos\agendamento\scheduleproject_back\scheduler\obj\Debug\net7.0\ref\scheduler.dll
+C:\Users\iuryp\OneDrive\Desktop\Pessoal\Estudos\agendamento\scheduleproject_back\scheduler\obj\Debug\net7.0\scheduler.sourcelink.json

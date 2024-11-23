@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using scheduler.Business;
+using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
 
 namespace scheduler.Controllers
@@ -48,12 +49,32 @@ namespace scheduler.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] User user)
+        public async Task<IActionResult> Create([FromBody] UserCreateDTO userCreateDTO)
         {
             try
             {
+                var user = new User
+                {
+                    FederalId = userCreateDTO.FederalId,
+                    Name = userCreateDTO.Name,
+                    Email = userCreateDTO.Email
+                };
+                
                 var createdUser = await _business.CreateAsync(user);
-                return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, createdUser);
+
+                var response = new UserDTO
+                {
+                    Id = createdUser.Id,
+                    Guid = createdUser.Guid,
+                    FederalId = createdUser.FederalId,
+                    Name = createdUser.Name,
+                    Email = createdUser.Email,
+                    CreatedDate = createdUser.CreatedDate,
+                    UpdatedDate = createdUser.UpdatedDate,
+                    DeletedDate = createdUser.DeletedDate
+                };
+
+                return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, response);
             }
             catch (Exception ex)
             {
@@ -98,9 +119,8 @@ namespace scheduler.Controllers
         {
             try
             {
-                var token = await _business.AuthenticateAsync(request.Email, request.Password);
-                return Ok(new { token });
-
+                var user = await _business.AuthenticateAsync(request.Email, request.Password);
+                return Ok(user);
             }
             catch (Exception ex)
             {

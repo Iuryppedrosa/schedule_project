@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using scheduler.Models.Entities;
 
-namespace scheduler.Models.Entities
+namespace scheduler.Models.DTOs
 {
     public class LoginRequest
     {

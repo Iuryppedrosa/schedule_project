@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using scheduler.Business;
+using scheduler.Configuration;
 using scheduler.Data;
 using scheduler.Repositories;
 using System.Text;
@@ -11,6 +12,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>();
 
         // Add services to the container.
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -27,7 +29,7 @@ public class Program
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Secret"])),
+                        Encoding.ASCII.GetBytes(jwtConfig.Secret)),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };

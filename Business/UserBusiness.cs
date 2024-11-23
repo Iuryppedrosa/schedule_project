@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
 using scheduler.Repositories;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,17 +19,46 @@ namespace scheduler.Business
             _configuration = configuration;
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<UserDTO> GetByIdAsync(int id)
         {
             var user = await _repository.GetByIdAsync(id);
             if (user == null)
                 throw new Exception("User not found");
-            return user;
+
+            var userDTO = new UserDTO
+            {
+                Id = user.Id,
+                Guid = user.Guid,
+                FederalId = user.FederalId,
+                Name = user.Name,
+                Email = user.Email,
+                CreatedDate = user.CreatedDate,
+                UpdatedDate = user.UpdatedDate,
+                DeletedDate = user.DeletedDate
+            };
+
+            return userDTO;
+            
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<UserDTO>> GetAllAsync()
         {
-            return await _repository.GetAllAsync();
+            var users = await _repository.GetAllAsync();
+            if (users == null)
+                throw new Exception("No users found");
+
+            var userDTOs = users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                Guid = u.Guid,
+                FederalId = u.FederalId,
+                Name = u.Name,
+                Email = u.Email,
+                CreatedDate = u.CreatedDate,
+                UpdatedDate = u.UpdatedDate,
+                DeletedDate = u.DeletedDate
+            }).ToList();
+            return userDTOs;
         }
 
         public async Task<User> CreateAsync(User user)
@@ -37,8 +67,15 @@ namespace scheduler.Business
             if (existingUser != null)
                 throw new Exception("Email already registered");
 
-            // Hash password here if needed
+            var password = "standardPassword";
+            user.PasswordHash = HashPassord(password);
             return await _repository.CreateAsync(user);
+        }
+
+        private string HashPassord(string password)
+        {
+            // Implement password hashing
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         public async Task UpdateAsync(User user)
@@ -59,13 +96,15 @@ namespace scheduler.Business
             await _repository.DeleteAsync(id);
         }
 
-        public async Task<string> AuthenticateAsync(string email, string password)
+        public async Task<LoginResponse> AuthenticateAsync(string email, string password)
         {
             var user = await _repository.GetByEmailAsync(email);
             if (user == null || !VerifyPassword(password, user.PasswordHash))
                 throw new Exception("Invalid credentials");
 
-            return GenerateJwtToken(user);
+            var token = GenerateJwtToken(user);
+
+            return new LoginResponse(token, user);
         }
 
         private bool VerifyPassword(string password, string hash)
