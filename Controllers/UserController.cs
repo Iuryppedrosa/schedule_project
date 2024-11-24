@@ -49,32 +49,13 @@ namespace scheduler.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] UserCreateDTO userCreateDTO)
         {
             try
             {
-                var user = new User
-                {
-                    FederalId = userCreateDTO.FederalId,
-                    Name = userCreateDTO.Name,
-                    Email = userCreateDTO.Email
-                };
-                
-                var createdUser = await _business.CreateAsync(user);
-
-                var response = new UserDTO
-                {
-                    Id = createdUser.Id,
-                    Guid = createdUser.Guid,
-                    FederalId = createdUser.FederalId,
-                    Name = createdUser.Name,
-                    Email = createdUser.Email,
-                    CreatedDate = createdUser.CreatedDate,
-                    UpdatedDate = createdUser.UpdatedDate,
-                    DeletedDate = createdUser.DeletedDate
-                };
-
-                return CreatedAtAction(nameof(GetById), new { id = createdUser.Id }, response);
+               var response = await _business.CreateAsync(userCreateDTO);
+                return CreatedAtAction(nameof(GetById), new { id = response.FederalId }, response);
             }
             catch (Exception ex)
             {
@@ -82,14 +63,13 @@ namespace scheduler.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/update")]
         [Authorize]
-        public async Task<IActionResult> Update(int id, [FromBody] User user)
+        public async Task<IActionResult> Update(int id, [FromBody] UserCreateDTO user)
         {
             try
             {
-                user.Id = id;
-                await _business.UpdateAsync(user);
+                await _business.UpdateAsync(user, id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -98,7 +78,7 @@ namespace scheduler.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPut("{id}/delete")]
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {

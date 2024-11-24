@@ -9,6 +9,7 @@ namespace scheduler.Repositories
         Task<IEnumerable<User>> GetAllAsync();
         Task<User> CreateAsync(User user);
         Task UpdateAsync(User user);
-        Task DeleteAsync(int id);
+        Task UpdateAsync(int user);
+        Task<IEnumerable<User>> GetActiveUsersAsync();
     }
 }

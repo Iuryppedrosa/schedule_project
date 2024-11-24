@@ -32,6 +32,7 @@ namespace scheduler.Business
                 FederalId = user.FederalId,
                 Name = user.Name,
                 Email = user.Email,
+                Contact = user.Contact,
                 CreatedDate = user.CreatedDate,
                 UpdatedDate = user.UpdatedDate,
                 DeletedDate = user.DeletedDate
@@ -54,6 +55,7 @@ namespace scheduler.Business
                 FederalId = u.FederalId,
                 Name = u.Name,
                 Email = u.Email,
+                Contact = u.Contact,
                 CreatedDate = u.CreatedDate,
                 UpdatedDate = u.UpdatedDate,
                 DeletedDate = u.DeletedDate
@@ -61,15 +63,27 @@ namespace scheduler.Business
             return userDTOs;
         }
 
-        public async Task<User> CreateAsync(User user)
+        public async Task<UserCreateDTO> CreateAsync(UserCreateDTO userCreateDTO)
         {
-            var existingUser = await _repository.GetByEmailAsync(user.Email);
-            if (existingUser != null)
-                throw new Exception("Email already registered");
+            // Validação e criação do domínio
+            var user = new User
+            {
+                FederalId = userCreateDTO.FederalId,
+                Name = userCreateDTO.Name,
+                Email = userCreateDTO.Email,
+                Contact = userCreateDTO.Contact,
+                PasswordHash = HashPassord("standardPassword")
+            };
 
-            var password = "standardPassword";
-            user.PasswordHash = HashPassord(password);
-            return await _repository.CreateAsync(user);
+            var createdUser = await _repository.CreateAsync(user);
+
+            // Transformação para DTO
+            return new UserCreateDTO
+            {
+                FederalId = createdUser.FederalId,
+                Name = createdUser.Name,
+                Email = createdUser.Email,
+            };
         }
 
         private string HashPassord(string password)
@@ -78,22 +92,24 @@ namespace scheduler.Business
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
-        public async Task UpdateAsync(User user)
-        {
-            var existingUser = await _repository.GetByIdAsync(user.Id);
+        public async Task UpdateAsync(UserCreateDTO newUser, int id)
+        { 
+            var existingUser = await _repository.GetByIdAsync(id);
             if (existingUser == null)
                 throw new Exception("User not found");
 
-            await _repository.UpdateAsync(user);
+            existingUser.FederalId = newUser.FederalId;
+            existingUser.Name = newUser.Name;
+            existingUser.Email = newUser.Email;
+            existingUser.Contact = newUser.Contact;
+            existingUser.PasswordHash = existingUser.PasswordHash;
+
+            await _repository.UpdateAsync(existingUser);
         }
 
         public async Task DeleteAsync(int id)
         {
-            var user = await _repository.GetByIdAsync(id);
-            if (user == null)
-                throw new Exception("User not found");
-
-            await _repository.DeleteAsync(id);
+            await _repository.UpdateAsync(id);
         }
 
         public async Task<LoginResponse> AuthenticateAsync(string email, string password)

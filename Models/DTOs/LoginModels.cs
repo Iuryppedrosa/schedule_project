@@ -17,6 +17,7 @@ namespace scheduler.Models.DTOs
     {
         public string Token { get; set; }
         public string Email { get; set; }
+        public string Contact { get; set; }
         public string Name { get; set; }
         public Guid Guid { get; set; }
 
@@ -25,6 +26,7 @@ namespace scheduler.Models.DTOs
             Token = token;
             Email = user.Email;
             Name = user.Name;
+            Contact = user.Contact;
             Guid = user.Guid;
         }
     }

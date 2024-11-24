@@ -45,14 +45,22 @@ namespace scheduler.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task UpdateAsync(int id)
         {
-            var user = await GetByIdAsync(id);
-            if (user != null)
-            {
-                user.DeletedDate = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
+            var user = await _context.Users.FindAsync(id);
+            if(user == null)
+                throw new Exception("User not found");
+
+            user.DeletedDate = DateTime.UtcNow;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetActiveUsersAsync()
+        {
+            return await _context.Users
+                .Where(user => user.DeletedDate == null)
+                .ToListAsync();
         }
     }
 }

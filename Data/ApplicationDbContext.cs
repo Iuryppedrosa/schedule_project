@@ -26,6 +26,7 @@ namespace scheduler.Data
                 entity.Property(e => e.FederalId).HasMaxLength(20);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Contact).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
             });
 

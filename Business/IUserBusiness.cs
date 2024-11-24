@@ -7,8 +7,8 @@ namespace scheduler.Business
     {
         Task<UserDTO> GetByIdAsync(int id);
         Task<IEnumerable<UserDTO>> GetAllAsync();
-        Task<User> CreateAsync(User user);
-        Task UpdateAsync(User user);
+        Task<UserCreateDTO> CreateAsync(UserCreateDTO user);
+        Task UpdateAsync(UserCreateDTO user, int id);
         Task DeleteAsync(int id);
         Task<LoginResponse> AuthenticateAsync(string email, string password);
     }
