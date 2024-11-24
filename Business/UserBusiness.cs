@@ -83,6 +83,8 @@ namespace scheduler.Business
                 FederalId = createdUser.FederalId,
                 Name = createdUser.Name,
                 Email = createdUser.Email,
+                Contact = createdUser.Contact
+
             };
         }
 
