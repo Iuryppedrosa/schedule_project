@@ -20,7 +20,7 @@ namespace scheduler.Repositories
 
         public async Task<User> GetByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.DeletedDate == null);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
