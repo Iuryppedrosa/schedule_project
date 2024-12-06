@@ -1,6 +1,6 @@
 ﻿using scheduler.Models.Entities;
 
-namespace scheduler.Repositories
+namespace scheduler.Repositories.Interfaces
 {
     public interface IUserRepository
     {

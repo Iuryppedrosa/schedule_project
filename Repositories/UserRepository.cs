@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using scheduler.Data;
 using scheduler.Models.Entities;
+using scheduler.Repositories.Interfaces;
 
 namespace scheduler.Repositories
 {

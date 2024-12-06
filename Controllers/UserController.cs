@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using scheduler.Business;
+using scheduler.Business.Interfaces;
 using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
 

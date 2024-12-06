@@ -1,7 +1,7 @@
 ﻿using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
 
-namespace scheduler.Business
+namespace scheduler.Business.Interfaces
 {
     public interface IUserBusiness
     {

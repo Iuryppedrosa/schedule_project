@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using scheduler.Business;
+using scheduler.Business.Interfaces;
 using scheduler.Configuration;
 using scheduler.Data;
 using scheduler.Repositories;
+using scheduler.Repositories.Interfaces;
 using System.Text;
 
 public class Program

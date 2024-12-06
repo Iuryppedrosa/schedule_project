@@ -1,7 +1,8 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using scheduler.Business.Interfaces;
 using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
-using scheduler.Repositories;
+using scheduler.Repositories.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
