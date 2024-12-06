@@ -20,6 +20,28 @@ namespace scheduler.Business
             _configuration = configuration;
         }
 
+        public async Task<UserDTO> GetByGuidAsync(Guid? guid)
+        {
+            var user = await _repository.GetByGuidAsync(guid);
+            if (user == null)
+                throw new Exception("User not found");
+
+            var userDTO = new UserDTO
+            {
+                Id = user.Id,
+                Guid = user.Guid,
+                FederalId = user.FederalId,
+                Name = user.Name,
+                Email = user.Email,
+                Contact = user.Contact,
+                CreatedDate = user.CreatedDate,
+                UpdatedDate = user.UpdatedDate,
+                DeletedDate = user.DeletedDate
+            };
+
+            return userDTO;
+        }
+
         public async Task<UserDTO> GetByIdAsync(int id)
         {
             var user = await _repository.GetByIdAsync(id);
@@ -61,6 +83,28 @@ namespace scheduler.Business
                 UpdatedDate = u.UpdatedDate,
                 DeletedDate = u.DeletedDate
             }).ToList();
+            return userDTOs;
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetAllAsyncByGuid(IEnumerable<Guid?> guids)
+        {
+            var users = await _repository.GetAllAsync(guids);
+            if (!users.Any())
+                throw new Exception("No users found");
+
+            var userDTOs = users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                Guid = u.Guid,
+                FederalId = u.FederalId,
+                Name = u.Name,
+                Email = u.Email,
+                Contact = u.Contact,
+                CreatedDate = u.CreatedDate,
+                UpdatedDate = u.UpdatedDate,
+                DeletedDate = u.DeletedDate
+            }).ToList();
+
             return userDTOs;
         }
 

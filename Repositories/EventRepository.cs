@@ -28,21 +28,22 @@ namespace scheduler.Repositories
             return await _context.Events.ToListAsync();
         }
 
-        public async Task<Event> CreateAsync(Event NewEvent)
+        public async Task<Event> CreateAsync(Event newEvent)
         {
-            NewEvent.CreatedDate = DateTime.UtcNow;
-            NewEvent.Guid = Guid.NewGuid();
+            newEvent.Guid = Guid.NewGuid();
+            newEvent.CreatedDate = DateTime.UtcNow;
 
-            await _context.Events.AddAsync(NewEvent);
+            await _context.Events.AddAsync(newEvent);
             await _context.SaveChangesAsync();
-            return NewEvent;
+            return newEvent;
         }
 
-        public async Task UpdateAsync(Event NewEvent)
+        public async Task<Event> UpdateAsync(Event NewEvent)
         {
             NewEvent.UpdatedDate = DateTime.UtcNow;
             _context.Events.Update(NewEvent);
             await _context.SaveChangesAsync();
+            return NewEvent;
         }
 
         public async Task UpdateAsync(int id)

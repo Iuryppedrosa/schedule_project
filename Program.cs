@@ -23,6 +23,10 @@ public class Program
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserBusiness, UserBusiness>();
+        builder.Services.AddScoped<ICourtRepository, CourtRepository>();
+        builder.Services.AddScoped<ICourtBusiness, CourtBusiness>();
+        builder.Services.AddScoped<IEventRepository, EventRepository>();
+        builder.Services.AddScoped<IEventBusiness, EventBusiness>();
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>

@@ -19,6 +19,11 @@ namespace scheduler.Repositories
             return await _context.Users.FindAsync(id);
         }
 
+        public async Task<User> GetByGuidAsync(Guid? guid)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Guid == guid && u.DeletedDate == null);
+        }
+
         public async Task<User> GetByEmailAsync(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.DeletedDate == null);
@@ -27,6 +32,11 @@ namespace scheduler.Repositories
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users.Where(u => u.DeletedDate == null).ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetAllAsync(IEnumerable<Guid?> guids)
+        {
+            return await _context.Users.Where(u => guids.Contains(u.Guid)).ToListAsync();
         }
 
         public async Task<User> CreateAsync(User user)

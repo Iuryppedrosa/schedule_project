@@ -80,6 +80,9 @@ namespace scheduler.Data
                     .HasMaxLength(255)
                     .IsRequired();
 
+                entity.Property(c => c.Active)
+                    .IsRequired();
+
                 entity.Property(c => c.Place)
                     .HasMaxLength(255)
                     .IsRequired(false);
