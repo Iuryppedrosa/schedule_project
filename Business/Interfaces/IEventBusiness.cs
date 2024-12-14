@@ -4,14 +4,13 @@ namespace scheduler.Business.Interfaces
 {
     public interface IEventBusiness
     {
-        Task<Event> GetByIdAsync(int id);
-        Task<Event> GetByGuidAsync(Guid guid);
+        Task<EventDTO> GetByGuidAsync(Guid guid);
         Task<IEnumerable<EventDTO>> GetAllAsync();
 
         Task<EventDTO> CreateAsync(EventDTO NewEvent);
-        Task<Event> UpdateAsync(Event NewEvent);
-        Task UpdateAsync(int id);
-        Task<IEnumerable<Event>> GetActiveEventsAsync(Event NewEvent);
+        Task<EventDTO> UpdateAsync(Guid guid, EventDTO NewEvent);
+        Task UpdateDeleteAsync(Guid guid);
+        Task<IEnumerable<EventDTO>> GetActiveEventsAsync();
 
     }
 }

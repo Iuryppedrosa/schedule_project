@@ -1,4 +1,5 @@
-﻿using scheduler.Business.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using scheduler.Business.Interfaces;
 using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
 using scheduler.Repositories.Interfaces;
@@ -27,13 +28,34 @@ namespace scheduler.Business
             return Event;
         }
 
-        public async Task<Event> GetByGuidAsync(Guid guid)
+        public async Task<EventDTO> GetByGuidAsync(Guid guid)
         {
             var Event = await _eventRepository.GetByGuidAsync(guid);
             if (Event == null)
                 throw new Exception("Event not found");
 
-            return Event;
+            var user = await _userBusiness.GetByGuidAsync(Event.UserGuid);
+            if(user == null)
+                throw new Exception("User not found");
+
+            var court = await _courtBusiness.GetByGuidAsync(Event.CourtGuid);
+            if(court == null)
+                throw new Exception("Court not found");
+
+            var EventDTO = new EventDTO
+                {
+                Id = Event.Id,
+                Guid = Event.Guid,
+                UserGuid = Event.UserGuid,
+                UserName = user.Name,
+                CourtGuid = Event.CourtGuid,
+                Title = Event.Title,
+                Details = Event.Details,
+                StartDate = Event.StartDate,
+                EndDate = Event.EndDate
+            };
+
+            return EventDTO;
         }
 
         public async Task<IEnumerable<EventDTO>> GetAllAsync()
@@ -107,31 +129,91 @@ namespace scheduler.Business
             };
         }
 
-        public async Task<Event> UpdateAsync(Event NewEvent)
+        public async Task<EventDTO> UpdateAsync(Guid oldEventGuid, EventDTO newEvent)
         {
-            var Event = await _eventRepository.UpdateAsync(NewEvent);
-            if (Event == null)
-                throw new Exception("Event not updated");
-
-            return Event;
-        }
-
-        public async Task UpdateAsync(int id)
-        {
-            var Event = await _eventRepository.GetByIdAsync(id);
-            if (Event == null)
+            var oldEvent = await _eventRepository.GetByGuidAsync(oldEventGuid);
+            if (oldEvent == null)
                 throw new Exception("Event not found");
 
-            await _eventRepository.UpdateAsync(Event);
+            var user = await _userBusiness.GetByGuidAsync(newEvent.UserGuid);
+            if(user == null)
+                throw new Exception("User not found");
+
+            var court = await _courtBusiness.GetByGuidAsync(newEvent.CourtGuid);
+            if(court == null)
+                throw new Exception("Court not found");
+
+
+
+            oldEvent.Title = newEvent.Title;
+            oldEvent.UserId = user.Id;
+            oldEvent.UserFederalId = user.FederalId;
+            oldEvent.UserGuid = user.Guid;
+            oldEvent.Details = newEvent.Details;
+            oldEvent.CourtId = court.Id;
+            oldEvent.CourtGuid = court.Guid;
+            oldEvent.CourtName = court.Name;
+            oldEvent.StartDate = newEvent.StartDate;
+            oldEvent.EndDate = newEvent.EndDate;
+
+           
+
+            var eventNew = await _eventRepository.UpdateAsync(oldEvent);
+
+            var response = new EventDTO
+            {
+                Id = eventNew.Id,
+                Guid = eventNew.Guid,
+                UserGuid = eventNew.UserGuid,
+                UserName = user.Name,
+                CourtGuid = eventNew.CourtGuid,
+                Title = eventNew.Title,
+                Details = eventNew.Details,
+                StartDate = eventNew.StartDate,
+                EndDate = eventNew.EndDate
+            };
+
+
+            return response;
         }
 
-        public async Task<IEnumerable<Event>> GetActiveEventsAsync(Event NewEvent)
+        public async Task UpdateDeleteAsync(Guid guid)
         {
-            var Events = await _eventRepository.GetActiveEventsAsync(NewEvent);
-            if (Events == null)
+            var deleteEvent = await _eventRepository.GetByGuidAsync(guid);
+            if (deleteEvent == null)
+                throw new Exception("Event not found");
+
+            await _eventRepository.UpdateDeleteAsync(deleteEvent);
+        }
+
+        public async Task<IEnumerable<EventDTO>> GetActiveEventsAsync()
+        {
+            var events = await _eventRepository.GetActiveEventsAsync();
+            if (events == null)
                 throw new Exception("No Events found");
 
-            return Events;
+            var userGuids = events.Select(e => e.UserGuid).Distinct().ToList();
+            var users = await _userBusiness.GetAllAsyncByGuid(userGuids);
+
+            var eventDTOs = events
+                .Join(users,
+                    evt => evt.UserGuid,
+                    usr => usr.Guid,
+                    (evt, usr) => new EventDTO
+                    {
+                        Id = evt.Id,
+                        Guid = evt.Guid,
+                        UserGuid = evt.UserGuid,
+                        UserName = usr.Name,
+                        CourtGuid = evt.CourtGuid,
+                        Title = evt.Title,
+                        Details = evt.Details,
+                        StartDate = evt.StartDate,
+                        EndDate = evt.EndDate
+                    })
+                .ToList();
+
+            return eventDTOs;
         }
 
     }

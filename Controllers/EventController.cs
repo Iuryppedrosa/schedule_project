@@ -32,14 +32,29 @@ namespace scheduler.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("active")]
         [Authorize]
-        public async Task<IActionResult> GetEventById(int id)
+        public async Task<IActionResult> GetAllActiveEvents()
         {
             try
             {
-                var Event = await _business.GetByIdAsync(id);
-                return Ok(Event);
+                var events = await _business.GetActiveEventsAsync();
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetEventByGuid(Guid guid)
+        {
+            try
+            {
+                var @event = await _business.GetByGuidAsync(guid);
+                return Ok(@event);
             }
             catch (Exception ex)
             {
@@ -54,7 +69,38 @@ namespace scheduler.Controllers
             try
             {
                 var response = await _business.CreateAsync(eventDTO);
-                return CreatedAtAction(nameof(GetEventById), new { id = response.Guid }, response);
+                return CreatedAtAction(nameof(GetEventByGuid), new { guid = response.Guid }, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{guid}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateEvent(Guid guid, [FromBody] EventDTO eventDTO)
+        {
+            try
+            {
+                var response = await _business.UpdateAsync(guid, eventDTO);
+                return CreatedAtAction(nameof(GetEventByGuid), new { guid = response.Guid }, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPut("delete/{guid}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteEvent(Guid guid)
+        {
+            try
+            {
+                await _business.UpdateDeleteAsync(guid);
+                return Ok();
             }
             catch (Exception ex)
             {

@@ -11,8 +11,9 @@ namespace scheduler.Repositories.Interfaces
 
         Task<Event> UpdateAsync(Event NewEvent);
 
-        Task UpdateAsync(int id);
-        Task<IEnumerable<Event>> GetActiveEventsAsync(Event NewEvent);
+        Task UpdateDeleteAsync(Event deleteEvent);
+
+        Task<IEnumerable<Event>> GetActiveEventsAsync();
 
     }
 }

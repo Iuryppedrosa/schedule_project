@@ -38,6 +38,14 @@ namespace scheduler.Repositories
             return newEvent;
         }
 
+        public async Task UpdateDeleteAsync(Event deleteEvent)
+        {
+            deleteEvent.UpdatedDate = DateTime.UtcNow;
+            deleteEvent.DeletedDate = DateTime.UtcNow;
+            _context.Events.Update(deleteEvent);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<Event> UpdateAsync(Event NewEvent)
         {
             NewEvent.UpdatedDate = DateTime.UtcNow;
@@ -46,22 +54,10 @@ namespace scheduler.Repositories
             return NewEvent;
         }
 
-        public async Task UpdateAsync(int id)
-        {
-            var NewEvent = await _context.Events.FindAsync(id);
-            if(NewEvent == null)
-                throw new Exception("Event not found");
-
-            NewEvent.DeletedDate = DateTime.UtcNow;
-            _context.Events.Update(NewEvent);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<Event>> GetActiveEventsAsync(Event NewEvent)
+        public async Task<IEnumerable<Event>> GetActiveEventsAsync()
         {
             return await _context.Events.Where(e => e.DeletedDate == null).ToListAsync();
         }
-
 
     }
 }
