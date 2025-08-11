@@ -1,5 +1,7 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using scheduler.Business.Interfaces;
+using scheduler.Configuration;
 using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
 using scheduler.Repositories.Interfaces;
@@ -12,12 +14,13 @@ namespace scheduler.Business
     public class UserBusiness : IUserBusiness
     {
         private readonly IUserRepository _repository;
-        private readonly IConfiguration _configuration;
+        private readonly JwtConfig _jwtConfig; // Injete a classe de configuração aqui
 
-        public UserBusiness(IUserRepository repository, IConfiguration configuration)
+
+        public UserBusiness(IUserRepository repository, IOptions<JwtConfig> jwtConfigOptions)
         {
             _repository = repository;
-            _configuration = configuration;
+            _jwtConfig = jwtConfigOptions.Value;
         }
 
         public async Task<UserDTO> GetByGuidAsync(Guid? guid)
@@ -178,17 +181,26 @@ namespace scheduler.Business
 
         private string GenerateJwtToken(User user)
         {
-            // Implement JWT token generation
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]);
             var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+                // Adiciona as "claims" (informações do usuário) ao token.
+                // Isso é essencial para a autorização nos endpoints protegidos.
                 Subject = new ClaimsIdentity(new[]
                 {
-                new Claim(ClaimTypes.Name, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
-            }),
-                Expires = DateTime.UtcNow.AddHours(8),
+                    new Claim(ClaimTypes.Name, user.Id.ToString()), // Claim para o ID do usuário
+                    new Claim(ClaimTypes.Email, user.Email)         // Claim para o email
+                    // Você pode adicionar outras claims se necessário
+                }),
+
+                // Adiciona a data de expiração do token.
+                Expires = DateTime.UtcNow.AddHours(_jwtConfig.ExpiresInHours),
+
+                // Mantém as configurações que você já tinha.
+                Issuer = _jwtConfig.Issuer,
+                Audience = _jwtConfig.Audience,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
@@ -197,5 +209,6 @@ namespace scheduler.Business
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
     }
 }

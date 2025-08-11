@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using scheduler.Business.Interfaces;
 using scheduler.Models.DTOs;
 using scheduler.Models.Entities;
@@ -12,10 +13,12 @@ namespace scheduler.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserBusiness _business;
+        private readonly ILogger<UserController> _logger; 
 
-        public UserController(IUserBusiness business)
+        public UserController(IUserBusiness business, ILogger<UserController> logger)
         {
             _business = business;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -52,6 +55,8 @@ namespace scheduler.Controllers
         [Authorize]
         public async Task<IActionResult> Create([FromBody] UserCreateDTO userCreateDTO)
         {
+            _logger.LogInformation("Create user request received for email: {Email}", userCreateDTO.Email);
+
             try
             {
                var response = await _business.CreateAsync(userCreateDTO);
@@ -59,6 +64,7 @@ namespace scheduler.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while creating user with email {Email}", userCreateDTO.Email);
                 return BadRequest(ex.Message);
             }
         }

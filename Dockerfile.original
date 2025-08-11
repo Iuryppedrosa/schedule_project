@@ -1,0 +1,28 @@
+﻿# Estágio de build
+# Usa a imagem base do SDK do .NET 7 para compilar o projeto
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /app
+
+# Copia o arquivo .csproj e restaura as dependências
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copia todo o código do projeto
+COPY . ./
+# Publica a aplicação, gerando a versão final para ser executada
+RUN dotnet publish -c Release -o out
+
+# Estágio de execução
+# Usa uma imagem menor do .NET 7 para executar a aplicação
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
+WORKDIR /app
+COPY --from=build /app/out .
+
+# Expõe a porta 8080 para a aplicação
+EXPOSE 8080
+
+# Define a variável de ambiente para que a aplicação use a porta 8080
+ENV ASPNETCORE_URLS=http://+:8080
+
+# Comando para iniciar a aplicação
+ENTRYPOINT ["dotnet", "Scheduler.dll"]
